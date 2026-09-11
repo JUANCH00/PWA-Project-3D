@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atlas 3D de Arquitectura de Software</title>
+
+    <!-- PWA: el manifest se sirve desde public/, por eso la ruta es la raíz -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/iconos/icon-192.png" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="panel-lateral">
+        <header class="marca">
+          <h1>Atlas 3D</h1>
+          <p>Arquitectura de Software</p>
+        </header>
+
+        <!-- La lista la pinta vista/listaCatalogo.ts, no está escrita a mano -->
+        <nav id="lista-catalogo" class="lista-catalogo" aria-label="Catálogo de patrones"></nav>
+      </aside>
+
+      <main class="visor">
+        <div class="lienzo-caja">
+          <canvas id="lienzo-3d"></canvas>
+          <p class="pista">Arrastra para girar el modelo</p>
+        </div>
+
+        <section id="descripcion-patron" class="descripcion"></section>
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

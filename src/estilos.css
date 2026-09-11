@@ -1,0 +1,200 @@
+/* ============================================================================
+   Estilos del Atlas 3D. El color de fondo coincide con el background_color y
+   el theme_color del manifest.json (#0b1220): así, al abrir la app instalada,
+   la pantalla de arranque y la app se ven iguales.
+   ========================================================================== */
+
+:root {
+  --fondo: #0b1220;
+  --panel: #111a2e;
+  --borde: rgba(148, 163, 184, 0.18);
+  --texto: #e2e8f0;
+  --tenue: #94a3b8;
+  --cian: #38bdf8;
+  --violeta: #a78bfa;
+  --ambar: #fbbf24;
+  --cuerpo: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--cuerpo);
+  background: var(--fondo);
+  color: var(--texto);
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  height: 100vh;
+}
+
+/* ---------- panel lateral ---------- */
+.panel-lateral {
+  background: var(--panel);
+  border-right: 1px solid var(--borde);
+  padding: 1.5rem 1.1rem;
+  overflow-y: auto;
+}
+
+.marca h1 {
+  font-size: 1.35rem;
+  margin: 0;
+  background: linear-gradient(90deg, var(--cian), var(--violeta));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.marca p {
+  margin: 0.15rem 0 1.4rem;
+  font-size: 0.78rem;
+  color: var(--tenue);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lista-catalogo {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.item-catalogo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--texto);
+  font-family: var(--cuerpo);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.item-catalogo:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.item-catalogo.activo {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(167, 139, 250, 0.12));
+  border-color: var(--cian);
+}
+
+.item-nombre {
+  font-weight: 600;
+}
+
+.item-categoria {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.16);
+  color: var(--tenue);
+}
+
+.cat-estructural {
+  background: rgba(56, 189, 248, 0.16);
+  color: var(--cian);
+}
+.cat-distribuida {
+  background: rgba(167, 139, 250, 0.16);
+  color: var(--violeta);
+}
+.cat-datos {
+  background: rgba(251, 191, 36, 0.16);
+  color: var(--ambar);
+}
+
+/* ---------- visor ---------- */
+.visor {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.lienzo-caja {
+  position: relative;
+  min-height: 0;
+}
+
+#lienzo-3d {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none; /* para que arrastrar gire el modelo y no haga scroll */
+  cursor: grab;
+}
+
+#lienzo-3d:active {
+  cursor: grabbing;
+}
+
+.pista {
+  position: absolute;
+  bottom: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--tenue);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.descripcion {
+  border-top: 1px solid var(--borde);
+  background: var(--panel);
+  padding: 1.2rem 1.6rem 1.5rem;
+  max-height: 38vh;
+  overflow-y: auto;
+}
+
+.descripcion h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+}
+
+.descripcion p {
+  margin: 0.7rem 0 0;
+  line-height: 1.65;
+  color: var(--tenue);
+  font-size: 0.92rem;
+  max-width: 70ch;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 760px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .panel-lateral {
+    border-right: none;
+    border-bottom: 1px solid var(--borde);
+    max-height: 38vh;
+  }
+
+  .descripcion {
+    max-height: 30vh;
+  }
+}

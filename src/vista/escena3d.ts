@@ -1,0 +1,139 @@
+/* ============================================================================
+   CAPA DE VISTA — La escena de Three.js.
+
+   Solo sabe de cámaras, luces y objetos 3D. No sabe qué es un patrón: recibe
+   un THREE.Group ya construido y lo muestra.
+
+   Ojo a setAnimationLoop: es el bucle de dibujo que exige WebXR, así que el
+   mismo código sirve cuando en las Sesiones 38-39 llegue la realidad aumentada
+   (con requestAnimationFrame habría que reescribirlo).
+   ========================================================================== */
+
+import * as THREE from "three";
+
+export class Escena3D {
+  private renderizador: THREE.WebGLRenderer;
+  private escena: THREE.Scene;
+  private camara: THREE.PerspectiveCamera;
+  private objetoActual: THREE.Group | null = null;
+  private observador: ResizeObserver;
+
+  // Estado del arrastre con el mouse/dedo
+  private arrastrando = false;
+  private ultimoX = 0;
+  private ultimoY = 0;
+
+  constructor(lienzo: HTMLCanvasElement) {
+    this.renderizador = new THREE.WebGLRenderer({
+      canvas: lienzo,
+      antialias: true,
+      alpha: true,
+    });
+    this.renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    this.escena = new THREE.Scene();
+
+    this.camara = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    this.camara.position.set(0, 1.2, 9);
+    this.camara.lookAt(0, 0, 0);
+
+    this.escena.add(new THREE.AmbientLight(0xffffff, 1.1));
+
+    const principal = new THREE.DirectionalLight(0xffffff, 2.2);
+    principal.position.set(4, 6, 6);
+    this.escena.add(principal);
+
+    const relleno = new THREE.DirectionalLight(0x60a5fa, 1.0);
+    relleno.position.set(-5, -2, 3);
+    this.escena.add(relleno);
+
+    this.observador = new ResizeObserver(() => this.ajustarTamano());
+    this.observador.observe(lienzo.parentElement ?? lienzo);
+
+    this.conectarArrastre(lienzo);
+    this.ajustarTamano();
+  }
+
+  /** Reemplaza el objeto en pantalla, liberando la memoria del anterior. */
+  mostrar(grupo: THREE.Group): void {
+    if (this.objetoActual) {
+      this.escena.remove(this.objetoActual);
+      this.liberar(this.objetoActual);
+    }
+
+    this.objetoActual = grupo;
+    this.escena.add(grupo);
+  }
+
+  iniciar(): void {
+    this.renderizador.setAnimationLoop(() => {
+      // Giro lento continuo, salvo mientras el usuario arrastra
+      if (this.objetoActual && !this.arrastrando) {
+        this.objetoActual.rotation.y += 0.004;
+      }
+      this.renderizador.render(this.escena, this.camara);
+    });
+  }
+
+  detener(): void {
+    this.renderizador.setAnimationLoop(null);
+    this.observador.disconnect();
+  }
+
+  private ajustarTamano(): void {
+    const lienzo = this.renderizador.domElement;
+    const contenedor = lienzo.parentElement;
+    const ancho = contenedor?.clientWidth ?? lienzo.clientWidth;
+    const alto = contenedor?.clientHeight ?? lienzo.clientHeight;
+    if (ancho === 0 || alto === 0) return;
+
+    this.renderizador.setSize(ancho, alto, false);
+    this.camara.aspect = ancho / alto;
+    this.camara.updateProjectionMatrix();
+  }
+
+  /** Arrastrar con el mouse o el dedo para girar el objeto. */
+  private conectarArrastre(lienzo: HTMLCanvasElement): void {
+    lienzo.addEventListener("pointerdown", (evento) => {
+      this.arrastrando = true;
+      this.ultimoX = evento.clientX;
+      this.ultimoY = evento.clientY;
+      lienzo.setPointerCapture(evento.pointerId);
+    });
+
+    lienzo.addEventListener("pointermove", (evento) => {
+      if (!this.arrastrando || !this.objetoActual) return;
+
+      this.objetoActual.rotation.y += (evento.clientX - this.ultimoX) * 0.01;
+      this.objetoActual.rotation.x += (evento.clientY - this.ultimoY) * 0.01;
+
+      this.ultimoX = evento.clientX;
+      this.ultimoY = evento.clientY;
+    });
+
+    const soltar = (evento: PointerEvent) => {
+      this.arrastrando = false;
+      if (lienzo.hasPointerCapture(evento.pointerId)) {
+        lienzo.releasePointerCapture(evento.pointerId);
+      }
+    };
+    lienzo.addEventListener("pointerup", soltar);
+    lienzo.addEventListener("pointercancel", soltar);
+  }
+
+  /**
+   * Three.js no libera solo las geometrías ni los materiales: hay que llamar
+   * dispose() a mano o la memoria de la GPU se va llenando cada vez que se
+   * cambia de patrón.
+   */
+  private liberar(objeto: THREE.Object3D): void {
+    objeto.traverse((hijo) => {
+      const malla = hijo as Partial<THREE.Mesh>;
+      malla.geometry?.dispose();
+
+      const material = malla.material;
+      if (Array.isArray(material)) material.forEach((m) => m.dispose());
+      else material?.dispose();
+    });
+  }
+}
