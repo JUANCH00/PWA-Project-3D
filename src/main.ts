@@ -5,6 +5,7 @@
 
 import "./estilos.css";
 import { ControladorVisor } from "./controlador/ControladorVisor";
+import { registrarServiceWorker } from "./pwa/registrarServiceWorker";
 
 /** Busca un elemento obligatorio y falla con un mensaje claro si no está. */
 function requerir<T extends Element>(selector: string): T {
@@ -22,6 +23,6 @@ const descripcionEl = requerir<HTMLElement>("#descripcion-patron");
 const controlador = new ControladorVisor(listaEl, lienzoEl, descripcionEl);
 controlador.iniciar();
 
-// TODO (Sesión 28): aquí va el registro del Service Worker.
-// Hoy el manifest.json ya está listo, pero DevTools → Application marcará el
-// Service Worker en rojo hasta la próxima sesión. Es intencional.
+// Sesión 28: con el Service Worker registrado, el manifest.json cumple el
+// último criterio de instalabilidad que quedaba pendiente.
+registrarServiceWorker();
